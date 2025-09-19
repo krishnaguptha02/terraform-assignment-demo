@@ -1,0 +1,33 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA', './app']
+    dir: '.'
+
+  # Push the Docker image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA']
+
+  # Tag the image with 'latest'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA', 'gcr.io/$PROJECT_ID/sample-app:latest']
+
+  # Push the 'latest' tagged image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/sample-app:latest']
+
+  # Deploy to GKE
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+    - run
+    - --filename=k8s/
+    - --image=gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA
+    - --location=us-central1-a
+    - --cluster=gke-cluster
+
+images:
+  - 'gcr.io/$PROJECT_ID/sample-app:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/sample-app:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

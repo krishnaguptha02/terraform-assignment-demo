@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-app-ingress
+  namespace: blue-green-demo
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "sample-app-ip"
+    networking.gke.io/managed-certificates: "sample-app-ssl-cert"
+spec:
+  rules:
+  - host: sample-app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sample-app-blue-service
+            port:
+              number: 80
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: sample-app-ssl-cert
+  namespace: blue-green-demo
+spec:
+  domains:
+    - sample-app.example.com
