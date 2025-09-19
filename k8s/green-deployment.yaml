@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: sample-app
-        image: gcr.io/PROJECT_ID/sample-app:green
+        image: gcr.io/gke-blue-green-demo/sample-app:green
         ports:
         - containerPort: 3000
         env:
